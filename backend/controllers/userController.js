@@ -1,5 +1,6 @@
-import User from "../../models/userModel.js";
+import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
+import genTokenAndSetCookie from "../utils/helpers/genToken&setCookie.js";
 
      
 const signupUser = async (req, res) => {
@@ -24,14 +25,15 @@ const signupUser = async (req, res) => {
     await newUser.save()
 
     if (newUser) {
+        genTokenAndSetCookie(newUser._id, res)
         res.status(201).json(newUser);
     } else {
         res.status(400).json({ message: "Invalid user data" });
-    }
+    }   
 
   } catch (error) {
     res.status(500).json({ message: error.message });
-    console.log(error.message);
+    console.log("server err => ",error.message);
   }
 };
 
