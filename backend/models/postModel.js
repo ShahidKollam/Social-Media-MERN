@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import User from "./userModel.js";
 
 const postSchema = mongoose.Schema({
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User,
+        ref: "User",
         required: true
     },
     text: {
@@ -14,8 +15,9 @@ const postSchema = mongoose.Schema({
         type: String,
     },
     likes: {
-        type: Number,
-        default: 0,
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "User",  
+        default: [],
     },
     replies: [ 
         {
