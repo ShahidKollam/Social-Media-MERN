@@ -10,7 +10,7 @@ const createPost = async (req, res) => {
       return res
         .status(400)
         .json({ message: "PostedBy and text fields are required" });
-    }   
+    }
 
     const user = await User.findById(postedBy);
 
@@ -20,7 +20,7 @@ const createPost = async (req, res) => {
       return res.status(400).json({ message: "Unauthorised to create post" });
     }
 
-    const maxLength = 500;  
+    const maxLength = 500;
 
     if (text.length > maxLength) {
       return res
@@ -39,7 +39,7 @@ const createPost = async (req, res) => {
   }
 };
 
-const getPost = async (req, res) => {  
+const getPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -76,8 +76,8 @@ const deletePost = async (req, res) => {
 
 const likeUnlikePost = async (req, res) => {
   try {
-    const {id: postId} = req.params
-    const userId = req.user._id
+    const { id: postId } = req.params;
+    const userId = req.user._id;
 
     const post = await Post.findById(postId);
 
@@ -85,33 +85,71 @@ const likeUnlikePost = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    const userLikedPost = post.likes.includes(userId)
+    const userLikedPost = post.likes.includes(userId);
 
     if (userLikedPost) {
-        // unlike 
-        await Post.updateOne({ _id: postId }, { $pull: {likes: userId } } )
-        res.status(200).json({ message: "Post unliked successfully" });
-
+      // unlike
+      await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+      res.status(200).json({ message: "Post unliked successfully" });
     } else {
-        // like
-        await Post.updateOne({ _id: postId }, { $push: {likes: userId } } )
-        res.status(200).json({ message: "Post liked successfully" });
+      // like
+      await Post.updateOne({ _id: postId }, { $push: { likes: userId } });
+      res.status(200).json({ message: "Post liked successfully" });
     }
-
   } catch (error) {
     res.status(500).json({ message: error.message });
     console.log("Like post err => ", error.message);
   }
 };
 
-const replyToPost = async(req,res) => {
+const replyToPost = async (req, res) => {
+  try {
+    const { id: postId } = req.params;
+    const { text } = req.body;
+    const userId = req.user._id;
+    const username = req.user.username;
+    const userProfilePic = req.user.profilePic;
+
+    if (!text) {
+        return res.status(400).json({message: "Text field is required."})
+    }
+    
+    const post = await Post.findById(postId)
+    if (!post) {
+        return res.status(400).json({message: "Post not found."})
+    }
+
+    const reply = {userId, text, userProfilePic, username}
+    post.replies.push(reply)
+    await post.save()
+
+    return res.status(200).json({message: "Reply added successfully.", post})
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log("reply post err => ", error.message);
+  }
+};
+
+const getFeedPosts = async(req,res) => {
     try {
-        
-    } catch (error) {
+    console.log(req.user);
+    const userId = req.user._id
+    console.log(userId);
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(400).json({ message: "user not found" });
+
+    const following = user.following
+
+    const feedPosts = await Post.find({ postedBy: { $in: following }}).sort({ createdAt: -1 })
+
+    res.status(200).json(feedPosts)
+
+    } catch (error) { 
         res.status(500).json({ message: error.message });
-        console.log("Like post err => ", error.message);
+        console.log("feed post err => ", error.message);
     }
 }
 
-export { createPost, getPost, deletePost, likeUnlikePost, replyToPost };
- 
+export { createPost, getFeedPosts, getPost, deletePost, likeUnlikePost, replyToPost };
