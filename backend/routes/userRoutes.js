@@ -6,11 +6,11 @@ const router = express.Router();
 
 router.get('/profile/:username',getUserProfile)
 
-router.post("/signup", signupUser);
+router.post("/signup", signupUser); 
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.post("/follow/:id", protectRoute, followUnFollowUser);
 router.post("/update/:id", protectRoute, updateUser);
 
-export default router;
+export default router; 
      
