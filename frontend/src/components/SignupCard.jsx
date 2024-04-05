@@ -52,14 +52,13 @@ export default function SignupCard() {
 
       if (data.error) {
         showToast("Error", data.error, "error")
-        
         return;
       }
 
       localStorage.setItem("user-threads", JSON.stringify(data))
       setUser(data)
     } catch (error) {
-      console.log(error.message);
+      showToast("Error", error, "error")    
     }
   };
 
