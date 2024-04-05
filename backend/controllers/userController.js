@@ -3,14 +3,14 @@ import bcrypt from "bcryptjs";
 import genTokenAndSetCookie from "../utils/helpers/genToken&setCookie.js";
 
      
-const signupUser = async (req, res) => {
+const signupUser = async (req, res) => { 
   try {
 
     const {name,email,username,password} = req.body
     const user = await User.findOne({$or: [{email},{username}]})
 
     if (user) {
-        return res.status(400).json({ error: "User already exists" });
+        return res.status(400).json({ error: "User already exists" }); 
     }
 
     const salt = await bcrypt.genSalt(10)

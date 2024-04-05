@@ -1,4 +1,4 @@
-//'use client'
+"use client";
 
 import {
   Flex,
@@ -15,7 +15,7 @@ import {
   Text,
   useColorModeValue,
   Link,
-  useToast,
+  Grid,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -34,31 +34,90 @@ export default function SignupCard() {
     password: "",
   });
 
-  const showToast = useShowToast()
-  const setUser = useSetRecoilState(userAtom)
+  const [errors, setErrors] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const showToast = useShowToast();
+  const setUser = useSetRecoilState(userAtom);
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      name: "",
+      username: "",
+      email: "",
+      password: "",
+    };
+
+    // Validate name
+    if (!inputs.name.trim()) {
+      newErrors.name = "Name is required";
+      isValid = false;
+    }
+
+    // Validate username
+    if (!inputs.username.trim()) {
+      newErrors.username = "Username is required";
+      isValid = false;
+    }
+
+    // Validate email
+    if (!inputs.email.trim()) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    } else if (!isValidEmail(inputs.email)) {
+      newErrors.email = "Invalid email address";
+      isValid = false;
+    }
+
+    // Validate password
+    if (!inputs.password.trim()) {
+      newErrors.password = "Password is required";
+      isValid = false;
+    } else if (inputs.password.trim().length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const isValidEmail = (email) => {
+    // Simple email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleSignup = async () => {
-    console.log(inputs);
+    if (!validateForm()) {
+      return; // Don't proceed with signup if form is invalid
+    }
+
     try {
-      const res = await fetch("/api/users/signup",{
+      const res = await fetch("/api/users/signup", {
         method: "POST",
         headers: {
-          "content-type": "application/json"
+          "content-type": "application/json",
         },
-        body: JSON.stringify(inputs)
-      })
-      const data = await res.json()
+        body: JSON.stringify(inputs),
+      });
+      const data = await res.json();
       console.log(data);
 
       if (data.error) {
-        showToast("Error", data.error, "error")
+        showToast("Error", data.error, "error");
         return;
       }
 
-      localStorage.setItem("user-threads", JSON.stringify(data))
-      setUser(data)
+      localStorage.setItem("user-threads", JSON.stringify(data));
+      setUser(data);
     } catch (error) {
-      showToast("Error", error, "error")    
+      showToast("Error", error, "error");
     }
   };
 
@@ -78,7 +137,7 @@ export default function SignupCard() {
         >
           <Stack spacing={4}>
             <HStack>
-              <Box>
+              <Grid templateColumns="1fr 1fr" gap={4}>
                 <FormControl isRequired>
                   <FormLabel>Full Name</FormLabel>
                   <Input
@@ -88,9 +147,12 @@ export default function SignupCard() {
                       setInputs({ ...inputs, name: e.target.value })
                     }
                   />
+                  {errors.name && (
+                    <Text color={useColorModeValue("red.500", "red.200")}>
+                      {errors.name}
+                    </Text>
+                  )}
                 </FormControl>
-              </Box>
-              <Box>
                 <FormControl isRequired>
                   <FormLabel>Username</FormLabel>
                   <Input
@@ -100,9 +162,15 @@ export default function SignupCard() {
                       setInputs({ ...inputs, username: e.target.value })
                     }
                   />
+                  {errors.username && (
+                    <Text color={useColorModeValue("red.500", "red.200")}>
+                      {errors.username}
+                    </Text>
+                  )}
                 </FormControl>
-              </Box>
+              </Grid>
             </HStack>
+
             <FormControl isRequired>
               <FormLabel>Email address</FormLabel>
               <Input
@@ -112,6 +180,10 @@ export default function SignupCard() {
                   setInputs({ ...inputs, email: e.target.value })
                 }
               />
+              <Text color={useColorModeValue("red.500", "red.200")}>
+                {" "}
+                {errors.email}{" "}
+              </Text>
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Password</FormLabel>
@@ -119,7 +191,9 @@ export default function SignupCard() {
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={inputs.password}
-                  onChange={(e) => setInputs({...inputs, password: e.target.value})}
+                  onChange={(e) =>
+                    setInputs({ ...inputs, password: e.target.value })
+                  }
                 />
                 <InputRightElement h={"full"}>
                   <Button
@@ -132,6 +206,10 @@ export default function SignupCard() {
                   </Button>
                 </InputRightElement>
               </InputGroup>
+              <Text color={useColorModeValue("red.500", "red.200")}>
+                {" "}
+                {errors.password}{" "}
+              </Text>
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
