@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Flex,
@@ -30,33 +30,70 @@ export default function LoginCard() {
     username: "",
     password: "",
   });
-  const showToast = useShowToast()
-  const setUser = useSetRecoilState(userAtom)
+  const showToast = useShowToast();
+  const setUser = useSetRecoilState(userAtom);
+  const [errors, setErrors] = useState({
+    username: "",
+    password: "",
+  });
 
-  const handleLogin = async() => {
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      username: "",
+      password: "",
+    };
+
+    // Validate username
+    if (!inputs.username.trim()) {
+      newErrors.username = "Username is required";
+      isValid = false;
+    }
+
+    if (inputs.username.length <= 3) {
+      newErrors.username = "Username must be longer than 3 characters";
+      isValid = false;
+    }
+
+    // Validate password
+    if (!inputs.password.trim()) {
+      newErrors.password = "Password is required";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      handleLogin();
+    }
+  };
+
+  const handleLogin = async () => {
     try {
-      const res = await fetch("/api/users/login",{
+      const res = await fetch("/api/users/login", {
         method: "POST",
         headers: {
-          "content-type": "application/json"
+          "content-type": "application/json",
         },
-        body: JSON.stringify(inputs)
-      })
-      const data = await res.json()
-      console.log(data);
+        body: JSON.stringify(inputs),
+      });
+      const data = await res.json();
 
       if (data.error) {
-        showToast("Error", data.error, "error")
+        showToast("Error", data.error, "info");
         return;
       }
-      console.log(data);
-      localStorage.setItem("user-threads", JSON.stringify(data))
-      setUser(data)
-
+      localStorage.setItem("user-threads", JSON.stringify(data));
+      setUser(data);
     } catch (error) {
-      showToast("Error", error, "error")    
+      showToast("Error", error, "error");
     }
-  }
+  };
+
   return (
     <Flex align={"center"} justify={"center"}>
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
@@ -75,58 +112,77 @@ export default function LoginCard() {
             sm: "400px",
           }}
         >
-          <Stack spacing={4}>
-            <FormControl isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input type="text" 
-              value={inputs.username}
-              onChange={(e) => setInputs((inputs) => ({...inputs, username: e.target.value}))}
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
-              <InputGroup>
-                <Input type={showPassword ? "text" : "password"} 
-              value={inputs.password}
-              onChange={(e) => setInputs((inputs) => ({...inputs, password: e.target.value}))}
-              />
-                <InputRightElement h={"full"}>
-                  <Button
-                    variant={"ghost"}
-                    onClick={() =>
-                      setShowPassword((showPassword) => !showPassword)
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>Username</FormLabel>
+                <Input
+                  type="text"
+                  placeholder="Enter"
+                  value={inputs.username}
+                  onChange={(e) =>
+                    setInputs((inputs) => ({
+                      ...inputs,
+                      username: e.target.value,
+                    }))
+                  }
+                />
+                <Text color={useColorModeValue("red.500", "red.200")}>
+                  {errors.username}
+                </Text>
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Password</FormLabel>
+                <InputGroup>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter"
+                    value={inputs.password}
+                    onChange={(e) =>
+                      setInputs((inputs) => ({
+                        ...inputs,
+                        password: e.target.value,
+                      }))
                     }
-                  >
-                    {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <Stack spacing={10} pt={2}>
-              <Button
-                loadingText="Submitting"
-                size="lg"
-                bg={"blue.400"}
-                color={"white"}
-                _hover={{
-                  bg: "blue.500",
-                }}
-                onClick={handleLogin}
-              >
-                Login
-              </Button>
-            </Stack>
-            <Stack pt={6}>
-              <Text align={"center"}>
-                Don't have an account?{" "}
-                <Link
-                  color={"blue.400"}
-                  onClick={() => setAuthScreen("signup")}
+                  />
+                  <InputRightElement h={"full"}>
+                    <Button
+                      variant={"ghost"}
+                      onClick={() =>
+                        setShowPassword((showPassword) => !showPassword)
+                      }
+                    >
+                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+                <Text color={useColorModeValue("red.500", "red.200")}>
+                  {errors.password}
+                </Text>
+              </FormControl>
+              <Stack spacing={10} pt={2}>
+                <Button
+                  type="submit"
+                  loadingText="Submitting"
+                  size="lg"
+                  bg={"blue.400"}
+                  color={"white"}
+                  _hover={{
+                    bg: "blue.500",
+                  }}
                 >
-                  Sign up
-                </Link>
-              </Text>
+                  Login
+                </Button>
+              </Stack>
             </Stack>
+          </form>
+          <Stack pt={6}>
+            <Text align={"center"}>
+              Don't have an account?{" "}
+              <Link color={"blue.400"} onClick={() => setAuthScreen("signup")}>
+                Sign up
+              </Link>
+            </Text>
           </Stack>
         </Box>
       </Stack>
