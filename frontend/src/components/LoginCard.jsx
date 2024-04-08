@@ -50,7 +50,7 @@ export default function LoginCard() {
       isValid = false;
     }
 
-    if (inputs.username.length <= 3) {
+    if (inputs.username.length < 3) {
       newErrors.username = "Username must be longer than 3 characters";
       isValid = false;
     }

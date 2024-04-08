@@ -132,7 +132,7 @@ const replyToPost = async (req, res) => {
 };
 
 const getFeedPosts = async(req,res) => {
-    try {
+    try { 
     const userId = req.user._id
     const user = await User.findById(userId);
 
