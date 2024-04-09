@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import genTokenAndSetCookie from "../utils/helpers/genToken&setCookie.js";
+import { v2 as cloudinary } from "cloudinary";
 
      
 const signupUser = async (req, res) => { 
@@ -46,7 +47,8 @@ const loginUser = async(req,res) => {
     if (!user || !checkPassword) return res.status(400).json({ error: "Invalid username or password" });
 
     genTokenAndSetCookie(user._id, res)
-    res.status(200).json({user});
+    user.password = null
+    res.status(200).json(user);
 
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -100,12 +102,16 @@ const followUnFollowUser = async(req,res) => {
 }
 
 const updateUser = async (req,res) => {
-  const { name, email, username, password, profilePic, bio} = req.body
+  const { name, email, username, password, bio} = req.body
+  let { profilePic } = req.body
   const userId = req.user._id 
 
   try {
     let user = await User.findById(userId)
     if(!user) return res.status(400).json({error: "user not found"})
+
+    console.log(userId);
+    console.log(req.params.id);
 
     if(req.params.id !== userId.toString())
       return res.status(400).json({error: "you cannot update others profile data."}) 
@@ -116,6 +122,14 @@ const updateUser = async (req,res) => {
       user.password = hashedPassword
     }
 
+    if (profilePic) {
+      if (user.profilePic) {
+        await cloudinary.uploader.destroy(user.profilePic.split("/").pop().split(".")[0])
+      }
+      const uploadResponse = await cloudinary.uploader.upload(profilePic)
+      profilePic = uploadResponse.secure_url 
+    }
+
     user.name = name || user.name
     user.email = email || user.email
     user.username = username || user.username
@@ -123,7 +137,9 @@ const updateUser = async (req,res) => {
     user.bio = bio || user.bio
   
     user = await user.save()
-    res.status(200).json({ message: "Profile upadated successfully", user });
+    // password must be null in response.
+    user.password = null
+    res.status(200).json( user );
     
   } catch (error) {
     res.status(500).json({ error: error.message });
