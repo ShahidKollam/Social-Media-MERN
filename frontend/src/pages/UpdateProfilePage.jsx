@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Button,
@@ -11,6 +11,7 @@ import {
   useColorModeValue,
   Avatar,
   Center,
+  FormHelperText,
 } from "@chakra-ui/react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
@@ -20,12 +21,13 @@ import useShowToast from "../hooks/useShowToast.js";
 
 export default function UpdateProfilePage() {
   const [user, setUser] = useRecoilState(userAtom);
+  const [errors, setErrors] = useState({});
 
   const [inputs, setInputs] = useState({
-    name: user?.name ,
-    username: user?.username ,
-    email: user?.email ,
-    bio: user?.bio ,
+    name: user?.name,
+    username: user?.username,
+    email: user?.email,
+    bio: user?.bio,
     password: "",
     profilePic: "",
   });
@@ -34,39 +36,62 @@ export default function UpdateProfilePage() {
   console.log(user);
 
   const fileRef = useRef(null);
+  const [updating, setUpdating] = useState(false);
+
   const { handleImageChange, imgUrl } = usePreviewImg();
   const showToast = useShowToast();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (updating) return;
+    setUpdating(true);
 
-  const handleSubmit = async(e) => {
-    e.preventDefault()
+    // Frontend validation
+    const validationErrors = {};
+    if (!inputs.name.trim()) {
+      validationErrors.name = "Name is required";
+    }
+    if (!inputs.username.trim()) {
+      validationErrors.username = "Username is required";
+    }
+    if (!inputs.email.trim()) {
+      validationErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(inputs.email.trim())) {
+      validationErrors.email = "Invalid email address";
+    }
+
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setUpdating(false);
+      return;
+    }
 
     try {
-        const res = await fetch(`/api/users/update/${user._id}`,{
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({...inputs, profilePic: imgUrl})
-        })
-        const data = await res.json()
-        
-        if(data.error){
-            showToast("Error", data.error, "error")
-            return;
-        }
+      const res = await fetch(`/api/users/update/${user._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...inputs, profilePic: imgUrl }),
+      });
+      const data = await res.json();
 
-        showToast("Success", "Profile upadated successfully", "success")
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
 
-        setUser(data);
+      showToast("Success", "Profile upadated successfully", "success");
 
-        localStorage.setItem("user-threads", JSON.stringify(data));
+      setUser(data);
 
+      localStorage.setItem("user-threads", JSON.stringify(data));
     } catch (error) {
-        showToast("Error", error ,"error")
-        
+      showToast("Error", error, "error");
+    } finally {
+      setUpdating(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -83,7 +108,7 @@ export default function UpdateProfilePage() {
           <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
             User Profile Edit
           </Heading>
-          
+
           <FormControl>
             <Stack direction={["column", "row"]} spacing={6}>
               <Center>
@@ -107,7 +132,7 @@ export default function UpdateProfilePage() {
             </Stack>
           </FormControl>
 
-          <FormControl >
+          <FormControl>
             <FormLabel>Full name</FormLabel>
             <Input
               value={inputs.name}
@@ -116,9 +141,12 @@ export default function UpdateProfilePage() {
               _placeholder={{ color: "gray.500" }}
               type="text"
             />
+            {errors.name && (
+              <FormHelperText color="red.500">{errors.name}</FormHelperText>
+            )}
           </FormControl>
 
-          <FormControl >
+          <FormControl>
             <FormLabel>User name</FormLabel>
             <Input
               value={inputs.username}
@@ -129,8 +157,11 @@ export default function UpdateProfilePage() {
               _placeholder={{ color: "gray.500" }}
               type="text"
             />
+            {errors.username && (
+              <FormHelperText color="red.500">{errors.username}</FormHelperText>
+            )}
           </FormControl>
-          <FormControl >
+          <FormControl>
             <FormLabel>Email address</FormLabel>
             <Input
               value={inputs.email}
@@ -139,8 +170,11 @@ export default function UpdateProfilePage() {
               _placeholder={{ color: "gray.500" }}
               type="email"
             />
+            {errors.email && (
+              <FormHelperText color="red.500">{errors.email}</FormHelperText>
+            )}
           </FormControl>
-          <FormControl >
+          <FormControl>
             <FormLabel>Bio</FormLabel>
             <Input
               value={inputs.bio}
@@ -149,8 +183,12 @@ export default function UpdateProfilePage() {
               _placeholder={{ color: "gray.500" }}
               type="text"
             />
+            {errors.bio && (
+              <FormHelperText color="red.500">{errors.bio}</FormHelperText>
+            )}
           </FormControl>
-          <FormControl >
+
+          <FormControl>
             <FormLabel>Password</FormLabel>
             <Input
               value={inputs.password}
@@ -162,6 +200,7 @@ export default function UpdateProfilePage() {
               type="password"
             />
           </FormControl>
+
           <Stack spacing={6} direction={["column", "row"]}>
             <Button
               bg={"red.400"}
@@ -181,6 +220,7 @@ export default function UpdateProfilePage() {
                 bg: "green.600",
               }}
               type="submit"
+              isLoading={updating}
             >
               Submit
             </Button>

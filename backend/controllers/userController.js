@@ -104,19 +104,20 @@ const followUnFollowUser = async(req,res) => {
 const updateUser = async (req,res) => {
   const { name, email, username, password, bio} = req.body
   let { profilePic } = req.body
-  const userId = req.user._id 
+  const userId = req.user._id      
 
   try {
     let user = await User.findById(userId)
     if(!user) return res.status(400).json({error: "user not found"})
 
-    console.log(userId);
-    console.log(req.params.id);
-
     if(req.params.id !== userId.toString())
       return res.status(400).json({error: "you cannot update others profile data."}) 
+    
 
     if(password){
+      
+      if (password.length < 6) return res.status(400).json({error: "Password must be at least 6 characters long"}) 
+
       const salt = await bcrypt.genSalt(10)
       const hashedPassword = await bcrypt.hash(password, salt)
       user.password = hashedPassword
