@@ -7,7 +7,6 @@ import {
   FormLabel,
   Input,
   InputGroup,
-  HStack,
   InputRightElement,
   Stack,
   Button,
@@ -15,6 +14,7 @@ import {
   Text,
   useColorModeValue,
   Link,
+  Spinner,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -26,6 +26,8 @@ import userAtom from "../atoms/userAtom";
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
+  const [loading, setLoading] = useState(false);
+
   const [inputs, setInputs] = useState({
     username: "",
     password: "",
@@ -73,6 +75,7 @@ export default function LoginCard() {
   };
 
   const handleLogin = async () => {
+    setLoading(true)
     try {
       const res = await fetch("/api/users/login", {
         method: "POST",
@@ -91,8 +94,13 @@ export default function LoginCard() {
       setUser(data);
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setLoading(false);
     }
   };
+
+
+
 
   return (
     <Flex align={"center"} justify={"center"}>
@@ -170,6 +178,7 @@ export default function LoginCard() {
                   _hover={{
                     bg: "blue.500",
                   }}
+                  isLoading={loading}
                 >
                   Login
                 </Button>

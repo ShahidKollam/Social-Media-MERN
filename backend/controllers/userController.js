@@ -4,11 +4,11 @@ import genTokenAndSetCookie from "../utils/helpers/genToken&setCookie.js";
 import { v2 as cloudinary } from "cloudinary";
 
      
-const signupUser = async (req, res) => { 
+const signupUser = async (req, res) => {   
   try {
 
     const {name,email,username,password} = req.body
-    const user = await User.findOne({$or: [{email},{username}]})
+    const user = await User.findOne({$or: [{email},{username}]}) 
 
     if (user) {
         return res.status(400).json({ error: "User already exists" }); 

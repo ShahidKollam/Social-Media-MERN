@@ -19,5 +19,5 @@ export default function usePreviewImg() {
     }
   };
 
-  return { handleImageChange, imgUrl };
+  return { handleImageChange, imgUrl, setImgUrl };
 }
