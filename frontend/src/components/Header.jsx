@@ -5,7 +5,6 @@ import { AiFillHome } from "react-icons/ai";
 import { RxAvatar } from "react-icons/rx";
 import { Link } from "react-router-dom";
 
-
 function Header() {
   const { colorMode, toggleColorMode } = useColorMode();
   const user = useRecoilValue(userAtom);
@@ -26,12 +25,11 @@ function Header() {
         onClick={toggleColorMode}
       />
 
-{user && (
+      {user && (
         <Link to={`${user.username}`}>
           <RxAvatar size={24} />
         </Link>
       )}
-
     </Flex>
   );
 }

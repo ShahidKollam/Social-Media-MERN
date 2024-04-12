@@ -28,7 +28,6 @@ function UserHeader({ user }) {
 
   const [updating, setUpdating] = useState(false)
 
-  console.log(following);
 
   const copyURL = () => {
     const currentURL = window.location.href;

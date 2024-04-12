@@ -171,7 +171,7 @@ export default function LoginCard() {
               <Stack spacing={10} pt={2}>
                 <Button
                   type="submit"
-                  loadingText="Submitting"
+                  loadingText="Logging in"
                   size="lg"
                   bg={"blue.400"}
                   color={"white"}
