@@ -4,8 +4,14 @@ import Actions from "./Actions";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { formatDistanceToNow } from "date-fns";
+import { DeleteIcon } from "@chakra-ui/icons";
+import { useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+
 
 function Posts({ post, postedBy }) {
+  
+  const currentUser = useRecoilValue(userAtom);
   const showToast = useShowToast();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -104,9 +110,17 @@ function Posts({ post, postedBy }) {
                 <Image src="/verified.png" w={4} h={4} ml={1} />
               </Flex>
               <Flex gap={4} alignItems={"center"}>
-                <Text fontSize={"xs"} width={36} textAlign={"right"} color={"gray.light"}>
+                <Text
+                  fontSize={"xs"}
+                  width={36}
+                  textAlign={"right"}
+                  color={"gray.light"}
+                >
                   {formatDistanceToNow(new Date(post.createdAt))} ago
                 </Text>
+                {currentUser?._id === user?._id && <DeleteIcon size={20} 
+                  onClick={handleDeletePost}
+                />}
               </Flex>
             </Flex>
             <Text fontSize={"sm"}>{post.text}</Text>
@@ -121,11 +135,11 @@ function Posts({ post, postedBy }) {
               </Box>
             )}
 
+            {/* component  */}
+
             <Flex gap={3} my={1}>
               <Actions post={post} />
             </Flex>
-
-            
           </Flex>
         </Flex>
       </Link>

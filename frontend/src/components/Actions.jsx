@@ -59,7 +59,6 @@ function Actions({ post: post_ }) {
       }
       setLiked(!liked);
 
-      console.log(data);
     } catch (error) {
       showToast("Error", error, "error");
     } finally {

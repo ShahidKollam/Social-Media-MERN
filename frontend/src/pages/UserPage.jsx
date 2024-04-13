@@ -4,12 +4,15 @@ import UserPost from "../components/UserPost"
 import { useParams } from "react-router-dom"
 import useShowToast from "../hooks/useShowToast.js";
 import { Flex, Spinner } from "@chakra-ui/react";
+import Posts from "../components/Posts.jsx";
 
 function UserPage() {
   const [user, setUser] = useState(null)
   const { username } = useParams()
   const showToast = useShowToast()
   const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [fetchingPosts, setFetchingPosts] = useState(true);
 
   useEffect(() => {
     const getUser = async() => {
@@ -24,13 +27,30 @@ function UserPage() {
         setUser(data)
 
       } catch (error) {
-        showToast("Error", error ,"error")      
+        showToast("Error", error.message ,"error")      
       } finally {
         setLoading(false);
       }
     }
     getUser()
+    getPosts()
   }, [username, showToast])
+
+  const getPosts = async() => {
+    setFetchingPosts(true)
+    try {
+      const res = await fetch(`/api/posts/user/${username}`)
+      const data = await res.json()
+      setPosts(data)
+      console.log(data);
+    } catch (error) {
+      showToast("Error", error.message ,"error")    
+      setPosts([])  
+    } finally {
+      setFetchingPosts(false)
+    }
+  }
+
 
   if(!user && loading) {
     return (
@@ -45,9 +65,17 @@ function UserPage() {
   return (
     <>
     <UserHeader user={user} />
-    <UserPost likes={1200} replies={481} postImg="/post1.png" postTitle="Let's talk about threads" />
-    <UserPost likes={3240} replies={340} postImg="/post3.png" postTitle="Success path" />
-    <UserPost likes={1211} replies={290} postImg="/zuck-avatar.png" postTitle="World of innovation" />
+    {!fetchingPosts && posts.length === 0 && <h1>User have no post.</h1>}
+    {fetchingPosts && (
+        <Flex justifyContent={"center"} my={12}>
+          <Spinner size="xl" />
+        </Flex>
+      )}
+
+      {posts.map(post => (
+        <Posts key={post._id} postedBy={post.postedBy} post={post} />
+      ))}
+
     </>
   )
 }
