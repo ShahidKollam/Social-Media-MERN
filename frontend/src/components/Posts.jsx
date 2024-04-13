@@ -7,9 +7,14 @@ import { formatDistanceToNow } from "date-fns";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
+import { useRecoilState } from "recoil";
+import postsAtom from "../atoms/postsAtom.js";
+
 
 function Posts({ post, postedBy }) {
   const currentUser = useRecoilValue(userAtom);
+  const [posts, setPosts] = useRecoilState(postsAtom);
+
   const showToast = useShowToast();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -50,6 +55,9 @@ function Posts({ post, postedBy }) {
         return;
       }
       showToast("Success", "Post deleted", "success");
+
+      setPosts(posts.filter((p) => p._id !== post._id ))
+      
     } catch (error) {
       showToast("Error", error.message, "error");
     }

@@ -24,6 +24,8 @@ import { BsFillImageFill } from "react-icons/bs";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+import { useRecoilState } from "recoil";
+import postsAtom from "../atoms/postsAtom.js";
 
 const MAX_CHAR = 500;
 
@@ -37,7 +39,9 @@ export default function CreatePost() {
   const user = useRecoilValue(userAtom);
   const showToast = useShowToast();
   const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilState(postsAtom);
 
+  
   const handleTextChange = async (e) => {
     const inputText = e.target.value;
 
@@ -73,6 +77,7 @@ export default function CreatePost() {
       }
 
       showToast("Success", "Post created successfully", "success");
+      setPosts([data, ...posts])
       onClose();
       setPostText("");
       setImgUrl("")
@@ -88,12 +93,13 @@ export default function CreatePost() {
       <Button
         position={"fixed"}
         bottom={10}
-        right={10}
+        right={5}
         leftIcon={<AddIcon />}
         onClick={onOpen}
+        size={{base: "sm", sm: "md"}}
         bg={colorMode === "light" ? "gray.300" : "gray.dark"}
       >
-        Post
+        Post 
       </Button>
 
       <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose}>

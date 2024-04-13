@@ -40,7 +40,7 @@ const createPost = async (req, res) => {
 
     return res
       .status(201)                
-      .json({ message: "Post created successfully", newPost });
+      .json( newPost );
 
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -49,6 +49,8 @@ const createPost = async (req, res) => {
 };
 
 const getPost = async (req, res) => {
+  //console.log(req.params);
+
   try {
     const post = await Post.findById(req.params.id);
 
@@ -136,7 +138,7 @@ const replyToPost = async (req, res) => {
     post.replies.push(reply)
     await post.save()
 
-    return res.status(200).json({message: "Reply added successfully.", post})
+    return res.status(200).json( reply )
 
   } catch (error) {
     res.status(500).json({ error: error.message });

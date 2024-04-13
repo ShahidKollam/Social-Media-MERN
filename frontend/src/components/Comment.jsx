@@ -17,11 +17,13 @@ function Comment({ reply, lastReply }) {
             <Text fontSize={"sm"} fontWeight={"bold"}>
               {reply.username}
             </Text>
+            
             {/* <Flex gap={2} alignItems={"center"}>
               <Text fontSize={"sm"} color={"gray.light"}>
                 {createdAt}
               </Text>
             </Flex> */}
+
           </Flex>
           <Text>{reply.text}</Text>
 
