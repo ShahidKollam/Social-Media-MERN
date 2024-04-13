@@ -1,7 +1,16 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { Box, Flex, Text, Input, FormControl, FormLabel, Button } from "@chakra-ui/react";
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 
@@ -10,8 +19,13 @@ function Actions({ post: post_ }) {
 
   const [liked, setLiked] = useState(post_.likes.includes(user?._id));
   const [post, setPost] = useState(post_);
-  const [isLiking, setIsLiking] = useState(false)
+  const [isLiking, setIsLiking] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
+
+  const [reply, setReply] = useState("")
+
   const showToast = useShowToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleLikeAndUnlike = async () => {
     if (!user)
@@ -21,8 +35,8 @@ function Actions({ post: post_ }) {
         "error"
       );
 
-      if(isLiking) return
-      setIsLiking(true)
+    if (isLiking) return;
+    setIsLiking(true);
 
     try {
       const res = await fetch("/api/posts/like/" + post._id, {
@@ -41,15 +55,52 @@ function Actions({ post: post_ }) {
       if (!liked) {
         setPost({ ...post, likes: [...post.likes, user._id] });
       } else {
-        setPost({ ...post, likes: post.likes.filter( id => id !== user._id ) });
+        setPost({ ...post, likes: post.likes.filter((id) => id !== user._id) });
       }
-      setLiked(!liked)
+      setLiked(!liked);
 
       console.log(data);
     } catch (error) {
       showToast("Error", error, "error");
     } finally {
-      setIsLiking(false)
+      setIsLiking(false);
+    }
+  };
+
+    
+  const handleReply = async () => {
+    if (!user)
+      return showToast(
+        "Error",
+        "You must be logged in to like a post",
+        "error"
+      );
+
+      if(isReplying) return
+      setIsReplying(true)
+
+    try {
+      const res = await fetch(`/api/posts/reply/${post._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: reply }),
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+      setPost({...post, replies: [...post.replies, data.reply]})
+      showToast("Success", "Reply postted successfully", "success");
+      onClose();
+      setReply("")
+    } catch (error) {
+      showToast("Error", error, "error");
+    } finally {
+      setIsReplying(false)
     }
   };
 
@@ -81,6 +132,7 @@ function Actions({ post: post_ }) {
           role="img"
           viewBox="0 0 24 24"
           width="20"
+          onClick={onOpen}
         >
           <title>Comment</title>
           <path
@@ -105,6 +157,32 @@ function Actions({ post: post_ }) {
           {post.likes.length} likes
         </Text>
       </Flex>
+
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Reply</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>First name</FormLabel>
+              <Input placeholder="Reply goes here.." 
+                value={reply} 
+                onChange={(e)=> setReply(e.target.value)}
+              />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} size={"sm"} onClick={handleReply}
+            isLoading={isReplying}
+            >
+              Reply
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 }
