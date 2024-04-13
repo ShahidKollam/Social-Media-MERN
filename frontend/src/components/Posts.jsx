@@ -6,10 +6,10 @@ import useShowToast from "../hooks/useShowToast";
 import { formatDistanceToNow } from "date-fns";
 
 function Posts({ post, postedBy }) {
-  const [liked, setLiked] = useState(false);
   const showToast = useShowToast();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -22,7 +22,7 @@ function Posts({ post, postedBy }) {
         }
         setUser(data);
       } catch (error) {
-        showToast("Errorrr", error.message, "error");
+        showToast("Error", error.message, "error");
         console.log(error.message);
         setUser(null);
       }
@@ -104,7 +104,7 @@ function Posts({ post, postedBy }) {
                 <Image src="/verified.png" w={4} h={4} ml={1} />
               </Flex>
               <Flex gap={4} alignItems={"center"}>
-                <Text fontSize={"xs"} width={36} color={"gray.light"}>
+                <Text fontSize={"xs"} width={36} textAlign={"right"} color={"gray.light"}>
                   {formatDistanceToNow(new Date(post.createdAt))} ago
                 </Text>
               </Flex>
@@ -120,24 +120,12 @@ function Posts({ post, postedBy }) {
                 <Image src={post.img} w={"full"} />
               </Box>
             )}
+
             <Flex gap={3} my={1}>
-              <Actions liked={liked} setLiked={setLiked} />
+              <Actions post={post} />
             </Flex>
 
-            <Flex gap={3} alignItems={"center"}>
-              <Text color={"gray.light"} fontSize={"sm"}>
-                {post.replies.length} replies
-              </Text>
-              <Box
-                w={0.5}
-                h={0.5}
-                borderRadius={"full"}
-                bg={"gray.light"}
-              ></Box>
-              <Text color={"gray.light"} fontSize={"sm"}>
-                {post.likes.length} likes
-              </Text>
-            </Flex>
+            
           </Flex>
         </Flex>
       </Link>

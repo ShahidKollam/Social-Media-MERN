@@ -84,10 +84,9 @@ const deletePost = async (req, res) => {
 };
 
 const likeUnlikePost = async (req, res) => {
-  try {
+  try { 
     const { id: postId } = req.params;
     const userId = req.user._id;
-
     const post = await Post.findById(postId);
 
     if (!post) {
@@ -95,7 +94,7 @@ const likeUnlikePost = async (req, res) => {
     }
 
     const userLikedPost = post.likes.includes(userId);
-
+   
     if (userLikedPost) {
       // unlike
       await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
