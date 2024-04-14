@@ -1,21 +1,12 @@
-
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom.js";
 import useShowToast from "../hooks/useShowToast.js";
 
-
-
-// this in not using .
-// instead of this uselogout custom hook.
-
-
-
-
-function LogoutButton() {
+function useLogout() {
   const showToast = useShowToast();
   const setUser = useSetRecoilState(userAtom);
 
-  const handleLogout = async () => {
+  const logout = async () => {
     try {
       const res = await fetch("api/users/logout", {
         method: "POST",
@@ -32,10 +23,12 @@ function LogoutButton() {
       localStorage.removeItem("user-threads");
       setUser(null);
     } catch (error) {
+      showToast("Error", error.message, "error");
+
       console.log(error.message);
     }
   };
-  return 
+  return logout;
 }
 
-export default LogoutButton;
+export default useLogout;

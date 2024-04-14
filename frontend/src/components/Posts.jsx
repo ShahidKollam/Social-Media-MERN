@@ -10,7 +10,6 @@ import userAtom from "../atoms/userAtom";
 import { useRecoilState } from "recoil";
 import postsAtom from "../atoms/postsAtom.js";
 
-
 function Posts({ post, postedBy }) {
   const currentUser = useRecoilValue(userAtom);
   const [posts, setPosts] = useRecoilState(postsAtom);
@@ -56,8 +55,7 @@ function Posts({ post, postedBy }) {
       }
       showToast("Success", "Post deleted", "success");
 
-      setPosts(posts.filter((p) => p._id !== post._id ))
-      
+      setPosts(posts.filter((p) => p._id !== post._id));
     } catch (error) {
       showToast("Error", error.message, "error");
     }
@@ -87,11 +85,11 @@ function Posts({ post, postedBy }) {
               {post.replies[0] && (
                 <Avatar
                   size="xs"
-                  name="Shahid"
+                  name="John doe"
                   src={post.replies[0].userProfilePic}
                   position={"absolute"}
                   top={"0px"}
-                  left={"15px"}
+                  left="15px"
                   padding={"2px"}
                 />
               )}
@@ -99,11 +97,11 @@ function Posts({ post, postedBy }) {
               {post.replies[1] && (
                 <Avatar
                   size="xs"
-                  name="Shahid"
+                  name="John doe"
                   src={post.replies[1].userProfilePic}
                   position={"absolute"}
-                  top={"0px"}
-                  right={"-5px"}
+                  bottom={"0px"}
+                  right="-5px"
                   padding={"2px"}
                 />
               )}
@@ -111,11 +109,11 @@ function Posts({ post, postedBy }) {
               {post.replies[2] && (
                 <Avatar
                   size="xs"
-                  name="Shahid"
+                  name="John doe"
                   src={post.replies[2].userProfilePic}
                   position={"absolute"}
-                  top={"0px"}
-                  left={"4px"}
+                  bottom={"0px"}
+                  left="4px"
                   padding={"2px"}
                 />
               )}

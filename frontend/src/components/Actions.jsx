@@ -87,7 +87,7 @@ function Actions({ post }) {
     if (!user)
       return showToast(
         "Error",
-        "You must be logged in to like a post",
+        "You must be logged in to reply a post",
         "error"
       );
 
