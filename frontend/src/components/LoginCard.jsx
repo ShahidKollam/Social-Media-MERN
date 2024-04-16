@@ -21,6 +21,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import OAuth from "./OAuth";
 
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false);
@@ -168,7 +169,7 @@ export default function LoginCard() {
                   {errors.password}
                 </Text>
               </FormControl>
-              <Stack spacing={10} pt={2}>
+              <Stack spacing={7} pt={2}>
                 <Button
                   type="submit"
                   loadingText="Logging in"
@@ -182,6 +183,8 @@ export default function LoginCard() {
                 >
                   Login
                 </Button>
+                  {/* Google sign in btn */}
+                <OAuth />
               </Stack>
             </Stack>
           </form>

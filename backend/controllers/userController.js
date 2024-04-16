@@ -109,7 +109,6 @@ const resendOtp = async (req, res) => {
     return res.status(500).json({ error: "An error occurred while resending OTP" });
   }
 };
-
            
 const signupUser = async (req, res) => {
   try { 
@@ -129,7 +128,7 @@ const signupUser = async (req, res) => {
       username,
       password: hashedPassword,
     });  
-    //await newUser.save();
+    await newUser.save();
     
     const sendOtp = await sendOtpMail(email);
     console.log("sendOtp", sendOtp);
@@ -157,6 +156,7 @@ const loginUser = async (req, res) => {
 
     genTokenAndSetCookie(user._id, res);
     user.password = null;
+
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -300,6 +300,45 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+const googleAuth = async(req, res) => {
+  try {
+    console.log(req.body);
+    const { name, email, profilePic } = req.body;
+    const username = name
+    const user = await User.findOne({ $or: [{ email }, { username }] });
+
+    if (user) {
+    
+      genTokenAndSetCookie(user._id, res);
+
+      res.status(200).json(user);
+
+    } else {
+
+      // register user
+
+      const newUser = new User({
+        name,
+        email,
+        username,
+        profilePic,
+        password: 123456,
+        isVerified: true
+      });
+      
+      const savedUser = await newUser.save();
+      const token = genTokenAndSetCookie(savedUser._id, res);
+
+      res.status(201).json(savedUser);
+  
+    }
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log("googleAuth user err => ", error.message);
+  }
+}
+
 export {
   signupUser,
   loginUser,
@@ -308,6 +347,6 @@ export {
   updateUser,
   getUserProfile,
   resendOtp,
-  sendOtpMail,
   verifyOtp,
+  googleAuth
 };

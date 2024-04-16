@@ -6,20 +6,22 @@ import {
   logoutUser,
   signupUser,
   updateUser,
-  sendOtpMail,
   verifyOtp,
-  resendOtp
+  resendOtp,
+  googleAuth
 } from "../controllers/userController.js";
 import protectRoute from "../middlewares/protectRoute.js";
 
 const router = express.Router();
 
 router.get("/profile/:query", getUserProfile);
-router.post("/resend-otp", resendOtp)
 
-router.post("/verify-otp", verifyOtp)
 router.post("/signup", signupUser);
 router.post("/login", loginUser);
+router.post("/resend-otp", resendOtp)
+router.post("/verify-otp", verifyOtp)
+
+router.post("/google", googleAuth)
 router.post("/logout", logoutUser);
 router.post("/follow/:id", protectRoute, followUnFollowUser);
 

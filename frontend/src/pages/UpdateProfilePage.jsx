@@ -32,9 +32,6 @@ export default function UpdateProfilePage() {
     profilePic: "",
   });
 
-  console.log(inputs);
-  console.log(user);
-
   const fileRef = useRef(null);
   const [updating, setUpdating] = useState(false);
 
