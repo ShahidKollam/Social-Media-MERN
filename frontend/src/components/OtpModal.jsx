@@ -26,20 +26,24 @@ function OtpModal({ isOpen, onClose, email }) {
   const showToast = useShowToast();
   const setAuthScreen = useSetRecoilState(authScreenAtom);
   const [loading, setLoading] = useState(false);
+  const [loading1, setLoading1] = useState(false);
+  
   const [disableResend, setDisableResend] = useState(true); // State to control button disabled status
   const [timer, setTimer] = useState(60);
 
+  console.log("disable", disableResend);
   useEffect(() => {
-    if (timer > 0 && disableResend) {
+    if (isOpen && timer > 0 && disableResend) {
       const interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
       }, 1000);
 
       return () => clearInterval(interval);
+
     } else if (timer === 0 && disableResend) {
       setDisableResend(false); // Enable the "Resend OTP" button after 1 minute
     }
-  }, [timer, disableResend]);
+  }, [timer, disableResend, isOpen]);
 
 
 
@@ -76,8 +80,7 @@ function OtpModal({ isOpen, onClose, email }) {
 
 
   const handleOtpResend = async() => {
-    setLoading(true);
-
+    setLoading1(true);
     console.log("Entered OTP:", otp);
     console.log(email);
     try {
@@ -95,14 +98,16 @@ function OtpModal({ isOpen, onClose, email }) {
             showToast("Error", data.error, "error");
             return;
           }
-          setDisableResend(true)
           showToast("Success", data.message, "success");
+          setTimer(60);
+          setDisableResend(true)
+
 
     } catch (error) {
         showToast("Error", error, "error");
     } finally {
         setOtp("")
-        setLoading(false)
+        setLoading1(false)
     }
   };
 
@@ -170,18 +175,19 @@ function OtpModal({ isOpen, onClose, email }) {
 
         <Button
         margin={4}
-        loadingText="Submitting"
+        loadingText="Sending OTP"
         size="lg"
         bg={"blue.400"}
         color={"white"}
         _hover={{
           bg: "blue.500",
         }}
-        isLoading={loading}
+        isLoading={loading1}
         isDisabled={disableResend}
           mt={4}
           onClick={handleOtpResend}>
-          Resend OTP
+          {disableResend ? `Resend OTP ( ${timer} s)` : "Resend OTP"}
+
         </Button>
       </ModalContent>
     </Modal>

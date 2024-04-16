@@ -29,7 +29,6 @@ import OtpModal from "./OtpModal.jsx";
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
-  const [showOTPModal, setShowOTPModal] = useState(false); 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("")

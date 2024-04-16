@@ -9,11 +9,11 @@ import nodemailer from "nodemailer";
 const otpStore = {};
 
 const generateOTP = () => {
-  const otpLength = 6;
+  const otpLength = 6; 
   const otp = Math.random().toString().substr(2, otpLength);
   const expDate = Date.now() + 60 * 1000; // 1 minute expiration
   return { otp, expDate };
-};
+}; 
 
 const sendOtpMail = async (email) => {
   try {
@@ -110,7 +110,7 @@ const resendOtp = async (req, res) => {
   }
 };
 
-
+           
 const signupUser = async (req, res) => {
   try { 
     const { name, email, username, password } = req.body;
