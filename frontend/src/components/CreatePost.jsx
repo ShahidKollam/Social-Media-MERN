@@ -166,7 +166,7 @@ export default function CreatePost() {
               onClick={handleCreatePost}
               isLoading={loading}
             >
-              Post
+              Add Post
             </Button>
           </ModalFooter>
         </ModalContent>

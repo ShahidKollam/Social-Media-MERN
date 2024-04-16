@@ -8,7 +8,7 @@ function useShowToast() {
             title,
             description,
             status,
-            duration: 3000,
+            duration: 6000,
             isClosable: true
           })
     }, [toast])

@@ -7,14 +7,15 @@ import {
   signupUser,
   updateUser,
   sendOtpMail,
-  verifyOtp
+  verifyOtp,
+  resendOtp
 } from "../controllers/userController.js";
 import protectRoute from "../middlewares/protectRoute.js";
 
 const router = express.Router();
 
 router.get("/profile/:query", getUserProfile);
-router.get("/email",sendOtpMail)
+router.post("/resend-otp", resendOtp)
 
 router.post("/verify-otp", verifyOtp)
 router.post("/signup", signupUser);

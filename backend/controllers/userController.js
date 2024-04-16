@@ -15,8 +15,7 @@ const generateOTP = () => {
   return { otp, expDate };
 };
 
-const sendOtpMail = async (email, res) => {
-  //email = "shah@gmail.com"
+const sendOtpMail = async (email) => {
   try {
     const otpData = generateOTP();   
     otpStore[email] = otpData;
@@ -25,51 +24,58 @@ const sendOtpMail = async (email, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: { 
-        user: process.env.EMAIL,
+        user: process.env.EMAIL,    
         pass: process.env.PASSWORD,
       },
-    });
+    }); 
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
       subject: "Your OTP code",
       text: `Please don't share Your OTP code to anyone. \n Your OTP code is ${otpData.otp} \n OTP valid for 1 minute only.`,
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-        res.status(400).json({ error: "Failed to send OTP email" });
-      } else {
-        console.log("Email sent successfully ", mailOptions);
-      }
+
+    return new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Failed to send OTP email:", error.message);
+          reject(error);
+        } else {
+          console.log("Email sent successfully ", mailOptions);
+          resolve(true);
+        }
+      });
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
     console.log("sendOtpMail err => ", error.message);
+    throw error
   }
 };
 
 const verifyOtp = async (req, res) => {
+  console.log("body", req.body);
+
   try {
 
     const { otp, email } = req.body;
+     
     const storedOtp = otpStore[email];
 
-    if (!storedOtp) {
+    if (!storedOtp) {m
       return res.status(400).json({error: "OTP not found. Please ensure you have requested an OTP."});
     }
 
 
     if (storedOtp && Date.now() < storedOtp.expDate) {
       if (otp === storedOtp.otp) {
+
         const updateInfo = await User.updateOne(
           { email: email }, 
-          { $set: { is_verified: true } }
+          { $set: { isVerified: true } }
         );
-        console.log(updateInfo); 
-
+        console.log(updateInfo);
         delete otpStore[email]; 
-        res.status(200).json({ message: "Your account verified successfully." });
+        res.status(200).json({ message: "Email verification successfull." });
 
       } else {
         res.status(400).json({ error: "OTP Invalid" });
@@ -83,8 +89,30 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-const signupUser = async (req, res) => {
+const resendOtp = async (req, res) => {
   try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const sendOtp = await sendOtpMail(email);
+    console.log("sendOtp", sendOtp);
+
+    if (sendOtp) {
+      return res.status(201).json({ message: "OTP resend successfully" });
+    } 
+
+  } catch (error) {
+    console.log("resendOtp err => ", error.message);
+    return res.status(500).json({ error: "An error occurred while resending OTP" });
+  }
+};
+
+
+const signupUser = async (req, res) => {
+  try { 
     const { name, email, username, password } = req.body;
     const user = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -100,21 +128,21 @@ const signupUser = async (req, res) => {
       email,
       username,
       password: hashedPassword,
-    });
-    await newUser.save();
+    });  
+    //await newUser.save();
+    
+    const sendOtp = await sendOtpMail(email);
+    console.log("sendOtp", sendOtp);
 
-    const sentOtp = await sendOtpMail(newUser.email, res);
-    console.log(sentOtp);
 
-    if (newUser) {
-      genTokenAndSetCookie(newUser._id, res);
+    if (newUser && sendOtp) {
       res.status(201).json(newUser);
     } else {
-      res.status(400).json({ error: "Invalid user data" });
+      res.status(400).json({ error: "Invalid user data" });                        
     }
   } catch (error) {
     console.log("register err => ", error.message);
-    res.status(500).json({ error: "An error occurred while registering user" });
+    res.status(500).json({ error:  error.message });
   }
 };
 
@@ -279,6 +307,7 @@ export {
   followUnFollowUser,
   updateUser,
   getUserProfile,
+  resendOtp,
   sendOtpMail,
   verifyOtp,
 };

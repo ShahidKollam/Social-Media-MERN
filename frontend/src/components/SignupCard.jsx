@@ -16,6 +16,7 @@ import {
   useColorModeValue,
   Link,
   Grid,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -23,10 +24,15 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom.js";
 import useShowToast from "../hooks/useShowToast.js";
 import userAtom from "../atoms/userAtom.js";
+import OtpModal from "./OtpModal.jsx";
 
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
+  const [showOTPModal, setShowOTPModal] = useState(false); 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("")
   const [inputs, setInputs] = useState({
     name: "",
     username: "",
@@ -94,9 +100,11 @@ export default function SignupCard() {
   };
 
   const handleSignup = async () => {
+
     if (!validateForm()) {
       return; // Don't proceed with signup if form is invalid
     }
+    setLoading(true);
 
     try {
       const res = await fetch("/api/users/signup", {
@@ -107,17 +115,27 @@ export default function SignupCard() {
         body: JSON.stringify(inputs),
       });
       const data = await res.json();
-      console.log(data);
 
       if (data.error) {
         showToast("Error", data.error, "error");
         return;
       }
+      console.log(data);
+      setEmail(data.email)
 
-      localStorage.setItem("user-threads", JSON.stringify(data));
-      setUser(data);
+      onOpen()
+      showToast("Account created", "Verify your email", "success");
+      setInputs(prevInputs => ({ ...prevInputs, name: "", username: "", email: "", password: "" }));
+
+
+      // localStorage.setItem("user-threads", JSON.stringify(data));
+      // setUser(data);
+
+
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -129,6 +147,10 @@ export default function SignupCard() {
             Sign up
           </Heading>
         </Stack>
+
+        <OtpModal isOpen={isOpen} onClose={onClose} email={email} />
+
+
         <Box
           rounded={"lg"}
           bg={useColorModeValue("white", "gray.dark")}
@@ -212,6 +234,7 @@ export default function SignupCard() {
               </Text>
             </FormControl>
             <Stack spacing={10} pt={2}>
+
               <Button
                 loadingText="Submitting"
                 size="lg"
@@ -220,10 +243,12 @@ export default function SignupCard() {
                 _hover={{
                   bg: "blue.500",
                 }}
+                isLoading={loading}
                 onClick={handleSignup}
               >
-                Sign up
+                Sign up via OTP
               </Button>
+
             </Stack>
             <Stack pt={6}>
               <Text align={"center"}>
@@ -237,5 +262,6 @@ export default function SignupCard() {
         </Box>
       </Stack>
     </Flex>
+    
   );
 }

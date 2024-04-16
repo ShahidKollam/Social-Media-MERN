@@ -165,6 +165,7 @@ function Posts({ post, postedBy }) {
             <Flex gap={3} my={1}>
               <Actions post={post} />
             </Flex>
+            
           </Flex>
         </Flex>
       </Link>
