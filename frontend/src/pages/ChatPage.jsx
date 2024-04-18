@@ -12,8 +12,41 @@ import {
 } from "@chakra-ui/react";
 import Conversation from "../components/Conversation"
 import MessageContainer from "../components/MessageContainer";
+import useShowToast from "../hooks/useShowToast";
+import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
+import { conversationsAtom } from "../atoms/messagesAtom";
+
 
 function ChatPage() {
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [conversations, setConversations] = useRecoilState(conversationsAtom)
+
+  const showToast = useShowToast();
+
+  useEffect(() => {
+
+    const getConversations = async () => {
+      try {
+        const res = await fetch("/api/messages/conversations");
+        const data = await res.json();
+
+        if (data.error) {
+          showToast("Error", data.error, "error");
+          return;
+        }
+        console.log(data);
+        setConversations(data)
+      } catch (error) {
+        showToast("Error", error.message, "error");
+      } finally {
+        setLoadingConversations(false)
+      }
+    };
+    getConversations();
+  }, [showToast, setConversations]);
+
+
   return (
     <Box
       position={"absolute"}
@@ -53,7 +86,7 @@ function ChatPage() {
             </Flex>
           </form>
 
-          {false &&
+          {loadingConversations &&
               [0, 1, 2, 3, 4].map((_, i) => (
                 <Flex
                   key={i}
@@ -71,9 +104,11 @@ function ChatPage() {
                   </Flex>
                 </Flex>
               ))}
-                <Conversation />
-                <Conversation />
-                <Conversation />
+                {!loadingConversations && (
+                  conversations.map(conversation =>
+                  <Conversation key={conversation._id} conversation={conversation} />
+                )
+                )}
         </Flex>
 
         {/* <Flex
