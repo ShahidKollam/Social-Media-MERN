@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import useLogout from "../hooks/useLogout";
 import authScreenAtom from "../atoms/authAtom";
-
+import {  BsFillChatQuoteFill } from 'react-icons/bs'
 function Header() {
   const { colorMode, toggleColorMode } = useColorMode();
   const user = useRecoilValue(userAtom);
@@ -40,6 +40,10 @@ function Header() {
         <Flex alignItems={"center"} gap={4}>
           <Link to={`${user.username}`}>
             <RxAvatar size={24} />
+          </Link>
+
+          <Link to={"/chat"} >
+          <BsFillChatQuoteFill size={20} />
           </Link>
 
           <Button size={"xs"} onClick={logout}>
