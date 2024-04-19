@@ -1,5 +1,5 @@
 import { SearchIcon } from "@chakra-ui/icons";
-import { GiConversation } from 'react-icons/gi'
+import { GiConversation } from "react-icons/gi";
 import {
   Box,
   Button,
@@ -10,22 +10,24 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
-import Conversation from "../components/Conversation"
+import Conversation from "../components/Conversation";
 import MessageContainer from "../components/MessageContainer";
 import useShowToast from "../hooks/useShowToast";
 import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { conversationsAtom } from "../atoms/messagesAtom";
-
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  conversationsAtom,
+  selectedConversationAtom,
+} from "../atoms/messagesAtom";
 
 function ChatPage() {
   const [loadingConversations, setLoadingConversations] = useState(true);
-  const [conversations, setConversations] = useRecoilState(conversationsAtom)
+  const [conversations, setConversations] = useRecoilState(conversationsAtom);
+  const selectedConversation = useRecoilValue(selectedConversationAtom)
 
   const showToast = useShowToast();
 
   useEffect(() => {
-
     const getConversations = async () => {
       try {
         const res = await fetch("/api/messages/conversations");
@@ -36,16 +38,15 @@ function ChatPage() {
           return;
         }
         console.log(data);
-        setConversations(data)
+        setConversations(data);
       } catch (error) {
         showToast("Error", error.message, "error");
       } finally {
-        setLoadingConversations(false)
+        setLoadingConversations(false);
       }
     };
     getConversations();
   }, [showToast, setConversations]);
-
 
   return (
     <Box
@@ -87,31 +88,34 @@ function ChatPage() {
           </form>
 
           {loadingConversations &&
-              [0, 1, 2, 3, 4].map((_, i) => (
-                <Flex
-                  key={i}
-                  gap={4}
-                  alignItems={"center"}
-                  p={"1"}
-                  borderRadius={"md"}
-                >
-                  <Box>
-                    <SkeletonCircle size={"10"} />
-                  </Box>
-                  <Flex w={"full"} flexDirection={"column"} gap={3}>
-                    <Skeleton h={"10px"} w={"80px"} />
-                    <Skeleton h={"8px"} w={"90%"} />
-                  </Flex>
+            [0, 1, 2, 3, 4].map((_, i) => (
+              <Flex
+                key={i}
+                gap={4}
+                alignItems={"center"}
+                p={"1"}
+                borderRadius={"md"}
+              >
+                <Box>
+                  <SkeletonCircle size={"10"} />
+                </Box>
+                <Flex w={"full"} flexDirection={"column"} gap={3}>
+                  <Skeleton h={"10px"} w={"80px"} />
+                  <Skeleton h={"8px"} w={"90%"} />
                 </Flex>
-              ))}
-                {!loadingConversations && (
-                  conversations.map(conversation =>
-                  <Conversation key={conversation._id} conversation={conversation} />
-                )
-                )}
+              </Flex>
+            ))}
+          {!loadingConversations &&
+            conversations.map((conversation) => (
+              <Conversation
+                key={conversation._id}
+                conversation={conversation}
+              />
+            ))}
         </Flex>
 
-        {/* <Flex
+        {!selectedConversation._id && (
+          <Flex
             flex={70}
             borderRadius={"md"}
             p={2}
@@ -119,12 +123,13 @@ function ChatPage() {
             alignItems={"center"}
             justifyContent={"center"}
             height={"400px"}
-        >
+          >
             <GiConversation size={100} />
-            <Text fontSize={20}>Start messaging</Text>
-        </Flex> */}
-        
-              <MessageContainer />
+            <Text fontSize={20}>Select a conversation to Start messaging</Text>
+          </Flex>
+        )}
+
+        {selectedConversation._id && <MessageContainer />}
       </Flex>
     </Box>
   );

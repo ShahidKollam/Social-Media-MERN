@@ -39,6 +39,8 @@ async function sendMessage(req, res) {
 async function getMessages(req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
+  console.log(userId);
+  console.log(otherUserId);
 
   try {
     const conversation = await Conversation.findOne({
@@ -61,7 +63,6 @@ async function getMessages(req, res) {
 
 async function getConversations(req, res) {
   const userId = req.user._id;
-    console.log(userId);
   try {
         const conversations = await Conversation.find({
           participants: userId,
