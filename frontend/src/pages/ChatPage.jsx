@@ -82,6 +82,23 @@ function ChatPage() {
         return
       }
 
+      const mockConversation = {
+        mock: true,
+        lastMessage:{
+          text: "",
+          sender: "",
+        },
+        _id: Date.now(),
+        participants: [
+          {
+            _id: data._id,
+            username: data.username,
+            profilePic: data.profilePic
+          }
+        ]
+      }
+      setConversations((prevConvs) => [...prevConvs, mockConversation])
+
     } catch (error) {
       showToast("Error", error.message, "error");
     } finally {
