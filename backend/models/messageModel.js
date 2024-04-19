@@ -8,7 +8,7 @@ const messageSchema = new mongoose.Schema(
         
 		text: String,
 
-		seen: {
+		seen: { 
 			type: Boolean,
 			default: false,
 		},
