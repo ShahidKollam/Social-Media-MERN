@@ -8,18 +8,21 @@ import {
   Text,
   Image,
   useColorMode,
+  Box,
 } from "@chakra-ui/react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import userAtom from '../atoms/userAtom'
-import { BsCheck2All } from 'react-icons/bs'
+import userAtom from "../atoms/userAtom";
+import { BsCheck2All } from "react-icons/bs";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 
 function Conversation({ conversation, isOnline }) {
-  const currentUser = useRecoilValue(userAtom)
+  const currentUser = useRecoilValue(userAtom);
   const user = conversation?.participants[0];
   const lastMessage = conversation.lastMessage;
-  const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom)
-  const colorMode = useColorMode()
+  const [selectedConversation, setSelectedConversation] = useRecoilState(
+    selectedConversationAtom
+  );
+  const colorMode = useColorMode();
 
   //console.log("selectedConversation", selectedConversation);
 
@@ -39,12 +42,15 @@ function Conversation({ conversation, isOnline }) {
           userId: user._id,
           userProfilePic: user.profilePic,
           username: user.username,
-          mock: conversation.mock
-        })
+          mock: conversation.mock,
+        });
       }}
       bg={
-        selectedConversation?._id === conversation._id ? 
-        (colorMode === "light" ? 'gray.400' : 'gray.dark') : ""
+        selectedConversation?._id === conversation._id
+          ? colorMode === "light"
+            ? "gray.400"
+            : "gray.dark"
+          : ""
       }
       borderRadius={"md"}
     >
@@ -67,7 +73,13 @@ function Conversation({ conversation, isOnline }) {
           <Image src="/verified.png" w={4} h={4} ml={1} />
         </Text>
         <Text fontSize={"xs"} display={"flex"} alignItems={"center"} gap={1}>
-          {currentUser._id === lastMessage.sender ? <BsCheck2All size={16} /> : ""}
+          {currentUser._id === lastMessage.sender ? (
+            <Box color={lastMessage.seen ? "blue.400" : ""}>
+              <BsCheck2All size={16} />
+            </Box>
+          ) : (
+            ""
+          )}
           {lastMessage.text.length > 18
             ? lastMessage.text.substring(0, 18) + "..."
             : lastMessage.text}
