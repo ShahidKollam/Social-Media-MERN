@@ -2,10 +2,11 @@ import { Avatar, Flex, useColorModeValue, Text, Image, Divider, SkeletonCircle, 
 import Message from './Message'
 import MessageInput from './MessageInput'
 import useShowToast from '../hooks/useShowToast';
-import { useRecoilValue } from 'recoil';
-import { selectedConversationAtom } from '../atoms/messagesAtom';
-import { useEffect, useState } from 'react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { conversationsAtom, selectedConversationAtom } from '../atoms/messagesAtom';
+import { useEffect, useRef, useState } from 'react';
 import userAtom from '../atoms/userAtom';
+import { useSocket } from '../context/SocketContext.jsx';
 
 function MessageContainer() {
 	const currentUser = useRecoilValue(userAtom)
@@ -13,6 +14,40 @@ function MessageContainer() {
 	const showToast = useShowToast();
 	const [loadingMessages, setLoadingMessages] = useState(true)
 	const [messages, setMessages] = useState([])
+	const { socket } = useSocket()
+	const setConversations = useSetRecoilState(conversationsAtom);
+	const messageEndRef = useRef()
+
+	useEffect(() => {
+
+	  socket.on("newMessage", (message) => {
+
+		if(message.conversationId === selectedConversation._id){
+			setMessages((prevMessages) => [...prevMessages, message])
+		}	
+
+		setConversations((prev) => {
+			const updatedConversations = prev.map(conversation => {
+				if(conversation._id === message.conversationId){
+					return {
+						...conversation,
+						lastMessage: {
+							text: message.text,
+							sender: message.sender
+						}
+					}
+				}
+				return conversation
+			})
+			return updatedConversations
+		})
+	  })
+
+	
+	  return () => socket.off("newMessage")
+
+	}, [socket, selectedConversation, setConversations])
+	
 
 	useEffect(() => {
 
@@ -38,7 +73,12 @@ function MessageContainer() {
 		}
 	  };
 	  getMessages();
-	}, [showToast, selectedConversation.userId]);
+	}, [showToast, selectedConversation.userId, selectedConversation.mock]);
+
+	useEffect(() => {
+	  messageEndRef.current?.scrollIntoView({ behaviour: "smooth"})
+	}, [messages])
+	
   
   return (
     <Flex flex="70"
@@ -83,7 +123,7 @@ function MessageContainer() {
 						<Flex
 							key={message._id}
 							direction={"column"}
-							// ref={messages.length - 1 === messages.indexOf(message) ? messageEndRef : null}
+							ref={messages.length - 1 === messages.indexOf(message) ? messageEndRef : null}
 						>
 							<Message message={message} ownMessage={currentUser._id === message.sender} />
 						</Flex>

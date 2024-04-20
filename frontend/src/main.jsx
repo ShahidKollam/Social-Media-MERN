@@ -9,6 +9,7 @@ import { BrowserRouter } from "react-router-dom";
 import { RecoilRoot } from "recoil";
 
 import "./index.css";
+import { SocketContextProvider } from "./context/SocketContext.jsx";
 
 const styles = {
   global: (props) => ({
@@ -34,18 +35,19 @@ const colors = {
 const theme = extendTheme({ styles, config, colors });
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  
-// React.StrictMode renders every components twice on development.
+  // React.StrictMode renders every components twice on development.
 
   <React.StrictMode>
     <RecoilRoot>
       <BrowserRouter>
         <ChakraProvider theme={theme}>
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-
-          <App />
+          <SocketContextProvider>
+            <App />
+          </SocketContextProvider>
         </ChakraProvider>
       </BrowserRouter>
     </RecoilRoot>
   </React.StrictMode>
 );
+ 

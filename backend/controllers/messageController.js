@@ -1,5 +1,6 @@
 import Conversation from "../models/conversationModel.js";
 import Message from "../models/messageModel.js";
+import { getRecipientSocketId, io } from "../socket/socket.js";
 
 async function sendMessage(req, res) {
   try {
@@ -30,6 +31,11 @@ async function sendMessage(req, res) {
       }),
     ]);
 
+    const reciepientSocketId = getRecipientSocketId(reciepientId)
+    if (reciepientSocketId) {
+      const ok = io.to(reciepientSocketId).emit("newMessage", newMessage)
+    }
+
     res.status(201).json(newMessage);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -39,8 +45,6 @@ async function sendMessage(req, res) {
 async function getMessages(req, res) {
   const { otherUserId } = req.params;
   const userId = req.user._id;
-  console.log(userId);
-  console.log(otherUserId);
 
   try {
     const conversation = await Conversation.findOne({
