@@ -14,20 +14,12 @@ import {
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import useShowToast from "../hooks/useShowToast";
+import useFollowUnfollow from '../hooks/useFollowUnfollow'
 
 function UserHeader({ user }) {
   const toast = useToast();
   const currentUser = useRecoilValue(userAtom);
-  const showToast = useShowToast()
-
-  const [following, setFollowing] = useState(
-    user.followers.includes(currentUser?._id)
-  );
-
-  const [updating, setUpdating] = useState(false)
-
+  const {handleFollowUnfollow, updating, following} = useFollowUnfollow(user)
 
   const copyURL = () => {
     const currentURL = window.location.href;
@@ -42,45 +34,6 @@ function UserHeader({ user }) {
     });
   };
 
-  const handleFollow = async() => {
-    if (!currentUser) {
-      showToast("Error", "Please login to follow", "error")
-      return;
-    }
-
-    if(updating) return true
-    setUpdating(true)
-
-    try {
-      const res = await fetch(`/api/users/follow/${user._id }`,{
-        method: "POST",
-        headers: {
-          "Content-Type" : "application/json"
-        }
-      })
-      const data = await res.json()
-
-      if (data.error) {
-        showToast("Error", data.error, "error");
-      }
-
-      if (following) {
-        showToast("Success", `unfollowed ${user.name}`, "success");
-        user.followers.pop();
-
-      } else {
-        showToast("Success", `Followed ${user.name}`, "success");
-        user.followers.push(currentUser?._id)
-      }
-
-      setFollowing(!following)
-
-    } catch (error) {
-      showToast("Error", error, "error");
-    } finally {
-      setUpdating(false)
-    }
-  }
 
   return (
     <VStack gap={4} alignItems={"start"}>
@@ -135,7 +88,7 @@ function UserHeader({ user }) {
       )}
       {currentUser?._id !== user._id && (
         <Button size={"sm"}
-        onClick={handleFollow}
+        onClick={handleFollowUnfollow}
         isLoading={updating}
         >{following ? "unfollow" : "Follow"}</Button>
       )}

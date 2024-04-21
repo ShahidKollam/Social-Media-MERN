@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { Flex, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Spinner } from "@chakra-ui/react";
 import Posts from "../components/Posts";
 import { useRecoilState } from "recoil";
-
+import SuggestedUsers from '../components/SuggestedUsers.jsx'
 import postsAtom from "../atoms/postsAtom.js";
 
 
@@ -36,7 +36,8 @@ function HomePage() {
   }, [showToast, setPosts]);
 
   return (
-    <>
+    <Flex gap={10} alignItems={"flex-start"}>
+      <Box flex={70}>
       {!loading && posts.length === 0 && 
         <h1>Follow some users to see the post</h1>
       }
@@ -50,7 +51,12 @@ function HomePage() {
       {posts.map((post) => (
         <Posts key={post._id} post={post} postedBy={post.postedBy} />
       ))}
-    </>
+      </Box>
+
+      <Box flex={30} display={{base:"none", md:"block"}} >
+        <SuggestedUsers />
+      </Box>
+    </Flex>
   )
 }
 
