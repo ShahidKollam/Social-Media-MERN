@@ -89,10 +89,10 @@ function PostPage() {
     <>
       <Flex>
         <Flex w={"full"} alignItems={"center"} gap={3}>
-          <Avatar src={user.profilePic} size={"md"} name={user.name} />
+          <Avatar src={user?.profilePic} size={"md"} name={user?.name} />
           <Flex>
             <Text fontSize={"sm"} fontWeight={"bold"}>
-              {user.username}
+              {user?.username}
             </Text>
             <Image src="/verified.png" w={"4"} h={"4"} ml={4} />
           </Flex>

@@ -6,12 +6,13 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
 } from "@chakra-ui/react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { AiFillHome } from "react-icons/ai";
 import { RxAvatar } from "react-icons/rx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import useLogout from "../hooks/useLogout";
 import authScreenAtom from "../atoms/authAtom";
@@ -19,15 +20,38 @@ import { BsFillChatQuoteFill } from "react-icons/bs";
 import { MdOutlineSettings } from "react-icons/md";
 import { RiSearchLine } from "react-icons/ri";
 import { useState } from "react";
+import useShowToast from "../hooks/useShowToast";
 
 function Header() {
   const { colorMode, toggleColorMode } = useColorMode();
   const user = useRecoilValue(userAtom);
   const logout = useLogout();
   const setAuthScreen = useSetRecoilState(authScreenAtom);
-  const [searchUser, setSearchUser] = useState("")
-  console.log(searchUser);
-  const handleSearchUser = async() => {}
+  const [searchedUser, setSearchUser] = useState("");
+  const showToast = useShowToast();
+  const navigate = useNavigate();
+
+  const handleSearchUser = async () => {
+    try {
+      const res = await fetch(`/api/users/profile/${searchedUser}`);
+      const data = await res.json();
+
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+
+      if (data.isFrozen) {
+        showToast("Error", "Account freezed", "error");
+        return;
+      }
+
+      navigate(`/${searchedUser}`);
+      setSearchUser("");
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }
+  };
 
   return (
     <Flex justifyContent={"space-between"} mt={6} mb="12">
@@ -53,23 +77,29 @@ function Header() {
 
       {user && (
         <Flex alignItems={"center"} gap={4}>
-        
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearchUser();
+            }}
+          >
+            <InputGroup size="sm" w="125px">
+              <Input
+                variant="outline"
+                placeholder="Search user"
+                borderRadius={100}
+                value={searchedUser}
+                onChange={(e) => setSearchUser(e.target.value)}
+                required
+                pattern="^\S.*$"
 
-          <InputGroup size="sm" w="125px">
-            <InputLeftElement
-              pointerEvents="none"
-              children={<RiSearchLine color="gray.300" />}
-            />
-            <Input
-              variant="outline"
-              placeholder="Search user"
-              borderRadius={100}
-              value={searchUser}
-              onChange={(e) => setSearchUser(e.target.value)}
-              onClick={handleSearchUser}
-            />
-          </InputGroup>
-
+              />
+              <InputRightElement
+                cursor={"pointer"}
+                children={<RiSearchLine color="gray.300" />}
+              />
+            </InputGroup>
+          </form>
 
           <Link to={`${user.username}`}>
             <RxAvatar size={24} />

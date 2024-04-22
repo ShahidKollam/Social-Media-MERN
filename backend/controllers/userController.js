@@ -283,6 +283,7 @@ const getUserProfile = async (req, res) => {
   // query is either username or userId
 
   const { query } = req.params;
+  console.log(query);
   try {
     let user;
 
