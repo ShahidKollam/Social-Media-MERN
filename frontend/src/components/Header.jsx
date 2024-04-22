@@ -1,13 +1,14 @@
 import {
   Button,
   Flex,
-  Image,
   useColorMode,
   Input,
   InputGroup,
-  InputLeftElement,
   InputRightElement,
 } from "@chakra-ui/react";
+
+import { BsSun, BsMoonStarsFill } from "react-icons/bs";
+
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { AiFillHome } from "react-icons/ai";
@@ -54,10 +55,10 @@ function Header() {
   };
 
   return (
-    <Flex justifyContent={"space-between"} mt={6} mb="12">
+    <Flex justifyContent={"space-between"} mt={4} mb={14}>
       {user && (
         <Link to="/">
-          <AiFillHome size={24} />
+          <AiFillHome size={"30px"}  />
         </Link>
       )}
 
@@ -67,13 +68,14 @@ function Header() {
         </Link>
       )}
 
-      <Image
+      <Button
         cursor={"pointer"}
-        alt="logo"
-        w={6}
-        src={colorMode === "dark" ? "/light-logo.svg" : "/dark-logo.svg"}
         onClick={toggleColorMode}
-      />
+        variant="unstyled"
+        w={16}
+      >
+        {colorMode === "dark" ? <BsSun /> : <BsMoonStarsFill />}
+      </Button>
 
       {user && (
         <Flex alignItems={"center"} gap={4}>
@@ -92,7 +94,6 @@ function Header() {
                 onChange={(e) => setSearchUser(e.target.value)}
                 required
                 pattern="^\S.*$"
-
               />
               <InputRightElement
                 cursor={"pointer"}

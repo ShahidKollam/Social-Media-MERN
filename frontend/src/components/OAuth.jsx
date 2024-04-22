@@ -1,4 +1,3 @@
-'use client'
 
 import { FcGoogle } from 'react-icons/fc'
 import { Button, Center, Text } from '@chakra-ui/react'

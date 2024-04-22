@@ -51,7 +51,7 @@ function UserHeader({ user }) {
               color={"gray.light"}
               bg={"gray.dark"}
             >
-              threads.net
+              chat.net
             </Text>
           </Flex>
         </Box>
