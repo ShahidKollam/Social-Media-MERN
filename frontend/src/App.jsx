@@ -10,14 +10,17 @@ import userAtom from "./atoms/userAtom";
 import CreatePost from "./components/CreatePost";
 import UpdateProfilePage from "./pages/UpdateProfilePage";
 import ChatPage from "./pages/ChatPage";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
   const user = useRecoilValue(userAtom);
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
 
   return (
     <Box position={"relative"} w={"full"}>
-      <Container maxW={pathname === "/" ? { base: "620px", md: "900px" } : "620px"}>
+      <Container
+        maxW={pathname === "/" ? { base: "620px", md: "900px" } : "620px"}
+      >
         <Header />
         <Routes>
           <Route
@@ -52,6 +55,11 @@ function App() {
           <Route
             path="/chat"
             element={user ? <ChatPage /> : <Navigate to="/auth" />}
+          />
+
+          <Route
+            path="/settings"
+            element={user ? <SettingsPage /> : <Navigate to="/auth" />}
           />
         </Routes>
       </Container>

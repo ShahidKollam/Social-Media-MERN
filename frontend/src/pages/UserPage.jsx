@@ -18,9 +18,11 @@ function UserPage() {
 
   useEffect(() => {
     getPosts()
-  }, [username, showToast, setPosts])
+  }, [username, showToast, setPosts, user])
 
   const getPosts = async() => {
+    if(!user) return;
+
     setFetchingPosts(true)
     try {
       const res = await fetch(`/api/posts/user/${username}`)

@@ -40,8 +40,11 @@ const userSchema = mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false,
-      },
-    
+    },
+    isFrozen: {
+        type: Boolean,
+        default: false,
+    },
 },
     {
         timestamps: true,
@@ -49,4 +52,4 @@ const userSchema = mongoose.Schema({
 );
 
 const User = mongoose.model('User', userSchema)
-export default User
+export default User 
