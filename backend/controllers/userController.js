@@ -321,6 +321,7 @@ const googleAuth = async(req, res) => {
       }
     
       genTokenAndSetCookie(user._id, res);
+      user.password = null
 
       res.status(200).json(user);
 
@@ -339,6 +340,7 @@ const googleAuth = async(req, res) => {
       
       const savedUser = await newUser.save();
       const token = genTokenAndSetCookie(savedUser._id, res);
+      savedUser.password = null
 
       res.status(201).json(savedUser);
   
